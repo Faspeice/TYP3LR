@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЛР3: Типизация языков программирования</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background-color: #fff0f5; color: #333; }
+        h1, h2 { color: #8b0000; }
+        .header-info { background: #ffe4e1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+        .constraints-box {
+            background-color: #f8f9fa;
+            border: 1px solid #d3d3d3;
+            border-left: 4px solid #8b0000;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .constraints-box strong { color: #8b0000; }
+        .constraints-box ul { margin: 10px 0 0 20px; padding: 0; }
+        .constraints-box li { margin-bottom: 5px; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 600px; }
+        th, td { border: 1px solid #d3d3d3; padding: 8px 10px; text-align: left; font-size: 14px; }
+        th { background: #ffb6c1; font-weight: 600; white-space: nowrap; }
+        .form-container { background: #fff0f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #8b0000; }
+        input[type="number"] { width: 250px; padding: 8px; border: 1px solid #d3d3d3; border-radius: 4px; font-size: 14px; }
+        .btn { padding: 10px 20px; background: #32cd32; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 10px; margin-bottom: 10px; transition: background 0.2s; }
+        .btn:hover { background: #228b22; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-secondary { background: #4682b4; }
+        .btn-secondary:hover { background: #2f4f4f; }
+        .error { color: #dc143c; font-weight: 600; margin: 10px 0; }
+        .success { color: #228b22; font-weight: 600; margin: 10px 0; }
+        .info-text { font-size: 13px; color: #666; font-style: italic; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+<div class="header-info">
+    <h1>«Типизация языков программирования», ЛР3</h1>
+    <p><strong>Группа:</strong> ПИН-231 | <strong>Студент:</strong> Колодин Д.А.</p>
+    <p><strong>Функция:</strong> <img src="img.png" alt="Формула"></p>
+</div>
+
+<div class="constraints-box">
+    <strong>Принципиальные ограничения на значения аргументов:</strong>
+    <ul>
+        <li>Аргумент <strong>t</strong> не может быть равен <strong>0</strong>.</li>
+        <li>Аргумент <strong>t</strong> не должен быть равен <strong>n / (2·fC)</strong> (где n — целое число), так как в этих точках функция котангенса математически не определена.</li>
+    </ul>
+</div>
+
+<h2>Ограничения и дискретизация аргументов</h2>
+<table id="limits-table">
+    <thead>
+    <tr>
+        <th>Аргумент</th>
+        <th>Диапазон аргумента</th>
+        <th>Дискрет аргумента</th>
+    </tr>
+    </thead>
+    <tbody id="limits-body"></tbody>
+</table>
+
+<h2>Ввод данных</h2>
+<div class="form-container">
+    <form id="input-form" novalidate>
+        <div class="form-group">
+            <label for="inp-eta">η:</label>
+            <input type="number" id="inp-eta" step="2" min="-1" max="1" value="-1" required>
+        </div>
+        <div class="form-group">
+            <label for="inp-fC">fC:</label>
+            <input type="number" id="inp-fC" step="1e6" min="1e6" max="10e9" value="1e6" required>
+        </div>
+        <div class="form-group">
+            <label for="inp-t">t: <span id="t-limits-info" class="info-text"></span></label>
+            <input type="number" id="inp-t" step="any" min="0" max="1" value="0" required>
+        </div>
+        <div class="form-group">
+            <label for="inp-dt">dt:</label>
+            <input type="number" id="inp-dt" step="10e-12" min="10e-12" max="10e-9" value="10e-12" required>
+        </div>
+        <div class="form-group">
+            <label for="inp-UmC">UmC:</label>
+            <input type="number" id="inp-UmC" step="10e-3" min="1e-3" max="1.6" value="1e-3" required>
+        </div>
+
+        <button type="submit" class="btn" id="submit-btn">Вычислить результат</button>
+
+        <button type="button" id="load-kp-btn" class="btn btn-secondary">Загрузить Контрольные Примеры (КП)</button>
+        <input type="file" id="kp-file-input" accept=".csv" style="display: none;">
+
+        <button type="button" id="load-tp-btn" class="btn btn-secondary">Загрузить Тестовые Примеры (ТП)</button>
+        <input type="file" id="tp-file-input" accept=".csv" style="display: none;">
+
+        <button type="button" id="clear-btn" class="btn">Очистить</button>
+    </form>
+    <div id="message"></div>
+</div>
+
+<h2>Результаты вычисления</h2>
+<div class="table-wrapper">
+    <table id="results-table">
+        <thead>
+        <tr id="results-header"></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
